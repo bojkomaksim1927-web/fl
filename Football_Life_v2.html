@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>⚽ Football Life</title>
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#050a12;--panel:#101a2a;--panel2:#15243a;--line:#263957;
+  --green:#48e39b;--green2:#1bb978;--text:#f4f7fb;--muted:#91a1b9;
+  --gold:#ffd166;--red:#ff6374;--blue:#5aa9ff
+}
+body{margin:0;background:
+ radial-gradient(circle at 50% -10%,#214c42 0,#0b1820 28%,#050a12 65%);
+ color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",Arial,sans-serif}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.08;
+ background:linear-gradient(90deg,transparent 49.7%,#fff 49.8%,#fff 50.2%,transparent 50.3%),
+ linear-gradient(0deg,transparent 49.7%,#fff 49.8%,#fff 50.2%,transparent 50.3%)}
+.app{max-width:560px;margin:auto;padding:14px 14px 96px;position:relative}
+.top{display:flex;align-items:center;justify-content:space-between;margin:4px 2px 12px}
+.brand{font-weight:900;font-size:22px;letter-spacing:-.5px}
+.age{background:#16243a;border:1px solid var(--line);padding:7px 11px;border-radius:999px;color:#c9d5e7;font-weight:800;font-size:13px}
+.screen{display:none}.screen.on{display:block}
+.card{background:linear-gradient(145deg,rgba(22,37,59,.96),rgba(10,19,32,.96));
+ border:1px solid var(--line);border-radius:20px;padding:16px;margin:10px 0;
+ box-shadow:0 12px 30px rgba(0,0,0,.22)}
+.hero{overflow:hidden;position:relative;border-color:#2e5260}
+.hero:after{content:"⚽";position:absolute;right:-7px;top:8px;font-size:82px;opacity:.08;transform:rotate(-12deg)}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;position:relative;z-index:1}
+.name{font-size:22px;font-weight:900}.club{color:var(--muted);margin-top:4px}
+.ovr{font-size:48px;line-height:1;margin:18px 0 14px;font-weight:950;letter-spacing:-2px}
+.ovr small{font-size:15px;color:var(--muted);letter-spacing:0}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stat{background:rgba(4,10,18,.35);border:1px solid #243650;border-radius:14px;padding:11px}
+.stat small{display:block;color:var(--muted);font-size:11px;margin-bottom:4px}.stat b{font-size:17px}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.section-title h3{margin:0;font-size:16px}.tag{font-size:11px;color:var(--green);font-weight:800}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+button{font:inherit;width:100%;border:1px solid #2a3d5b;border-radius:14px;
+ padding:13px 10px;background:#182840;color:#fff;font-weight:800;cursor:pointer}
+button:active{transform:scale(.98)}
+button.primary{background:linear-gradient(135deg,var(--green),var(--green2));color:#04120c;border-color:transparent}
+button.gold{background:linear-gradient(135deg,#ffd166,#e7a51d);color:#211500;border-color:transparent}
+button.danger{background:#321d2a;border-color:#663043;color:#ff9baa}
+.path{display:flex;gap:5px;overflow:hidden}.path span{flex:1;height:7px;background:#263650;border-radius:8px}.path span.on{background:var(--green)}
+.log{max-height:190px;overflow:auto}.log div{padding:9px 0;border-bottom:1px solid #20304a;color:#dbe4f0;font-size:13px}
+.info-row{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid #22334e}
+.info-row:last-child{border-bottom:0}
+.tabs{position:fixed;z-index:20;bottom:0;left:0;right:0;background:rgba(6,12,22,.96);
+ backdrop-filter:blur(14px);border-top:1px solid #263653;display:flex;justify-content:center}
+.tabs button{background:none;border:0;border-radius:0;margin:0;padding:9px 3px 10px;color:#8090a9;font-size:10px}
+.tabs button .ico{font-size:19px;display:block;margin-bottom:2px}.tabs .on{color:var(--green)}
+.progress{height:7px;background:#263650;border-radius:9px;overflow:hidden;margin-top:7px}.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--green),#78f5bd);border-radius:9px}
+
+/* EVENT */
+.modal{position:fixed;z-index:100;inset:0;background:rgba(1,5,10,.76);backdrop-filter:blur(10px);
+ display:none;align-items:center;justify-content:center;padding:18px}
+.modal.show{display:flex}
+.event-card{width:min(100%,500px);background:linear-gradient(155deg,#172d45,#0a1422);
+ border:1px solid #37617a;border-radius:26px;padding:20px;box-shadow:0 25px 70px rgba(0,0,0,.55);
+ position:relative;overflow:hidden}
+.event-card:before{content:"";position:absolute;left:-30px;right:-30px;top:0;height:5px;
+ background:linear-gradient(90deg,var(--green),#63b6ff,var(--green))}
+.event-badge{display:inline-block;color:#06130d;background:var(--green);font-weight:950;font-size:11px;
+ padding:6px 9px;border-radius:999px;margin-bottom:12px}
+.event-icon{font-size:44px;margin-bottom:3px}.event-title{font-size:25px;font-weight:950;margin:0 0 9px}
+.event-text{color:#c6d2e2;line-height:1.45;margin:0 0 16px}
+.choices{display:grid;gap:9px}.choices button{text-align:left;padding:14px 15px;background:#182b43}
+.choices button:first-child{background:linear-gradient(135deg,#1e8d66,#39c68d);border-color:transparent;color:#03150d}
+.close-event{margin-top:9px;background:#111d2e;color:#9eacc0}
+.pitch{height:54px;border:1px solid #31534c;border-radius:12px;margin-top:10px;position:relative;
+ background:linear-gradient(90deg,#0e3328,#174a38,#0e3328);overflow:hidden}
+.pitch:before{content:"";position:absolute;left:50%;top:0;bottom:0;width:1px;background:#8ccfb0;opacity:.35}
+.pitch:after{content:"";position:absolute;width:25px;height:25px;border:1px solid #8ccfb0;border-radius:50%;left:calc(50% - 12px);top:14px;opacity:.35}
+.offer-card button{margin-top:5px}.offer-card button+button{margin-top:5px}</style>
+</head>
+<body>
+<div class="app">
+  <div class="top">
+    <div class="brand">⚽ Football Life</div>
+    <div class="age" id="age">16 років</div>
+  </div>
+
+  <section id="home" class="screen on">
+    <div class="card hero">
+      <div class="hero-top">
+        <div><div class="name" id="name">Новий футболіст</div><div class="club" id="club">Двір</div></div>
+        <div class="tag">CAREER MODE</div>
+      </div>
+      <div class="ovr"><span id="ovr">42</span> <small>OVR</small></div>
+      <div class="grid">
+        <div class="stat"><small>💰 Гроші</small><b id="money">€0</b></div>
+        <div class="stat"><small>⚡ Енергія</small><b id="energy">∞</b><div class="progress"><i style="width:100%"></i></div></div>
+        <div class="stat"><small>⭐ Фанати</small><b id="fans">0</b></div>
+      </div>
+      <div class="pitch"></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><h3>⚡ Що робимо сьогодні?</h3><span class="tag" id="eventStatus">ПОДІЇ З'ЯВЛЯЮТЬСЯ САМІ</span></div>
+      <div class="actions">
+        <button class="primary" onclick="train()">🏋️ Тренування</button>
+        <button onclick="play()">⚽ Матч</button>
+        <button onclick="rest()">😴 Відпочинок</button>
+        <button class="gold" onclick="openEvent(true)">🎲 Перевірити подію</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><h3>🏆 Кар'єрний шлях</h3><span class="tag" id="pathLabel">Двір</span></div>
+      <div class="path" id="pathBars"></div>
+      <p id="path" style="color:var(--muted);font-size:13px;line-height:1.45;margin-bottom:0">
+        Двір → Районна команда → Обласна → Аматори → Друга ліга → Перша ліга → Прем'єр-ліга
+      </p>
+    </div>
+
+    <div class="card">
+      <div class="section-title"><h3>📜 Останні події</h3><span class="tag">ЖИТТЯ</span></div>
+      <div id="log" class="log"></div>
+    </div>
+  </section>
+
+  <section id="career" class="screen">
+    <div class="card"><h2>🏆 Кар'єра</h2>
+      <div class="info-row"><span>Клуб</span><b id="cclub"></b></div>
+      <div class="info-row"><span>Матчі</span><b id="matches"></b></div>
+      <div class="info-row"><span>Голи</span><b id="goals"></b></div>
+      <div class="info-row"><span>Репутація</span><b id="rep"></b></div>
+      <div class="info-row"><span>Зарплата</span><b id="salary"></b></div>
+    </div>
+    <div class="card">
+      <div class="section-title"><h3>📨 Пропозиції клубів</h3><span class="tag">ВИБІР</span></div>
+      <div id="offers"></div>
+      <div id="noOffers" style="color:var(--muted);font-size:13px">Поки що конкретних пропозицій немає. Грай, тренуйся та підвищуй репутацію.</div>
+    </div>
+    <div class="card"><h3>📈 Розвиток</h3>
+      <div class="info-row"><span>Навичка</span><b id="skill"></b></div>
+      <div class="info-row"><span>Форма</span><b id="fit"></b></div>
+    </div>
+  </section>
+  <section id="life"<section id="life" class="screen">
+    <div class="card"><h2>🏠 Життя</h2>
+      <div class="info-row"><span>Житло</span><b id="house">Кімната</b></div>
+      <div class="info-row"><span>Комфорт</span><b id="comfort">20</b></div>
+      <div class="info-row"><span>Стосунки</span><b id="rel">0</b></div>
+      <button onclick="buyClothes()">👕 Одяг — €80</button>
+      <button onclick="buyCar()">🚗 Авто — €2500</button>
+    </div>
+    <div class="card"><h3>⚠️ Ризики</h3><p style="color:var(--muted)">Твої рішення впливають на гроші, репутацію, стосунки та кар'єру.</p>
+      <button onclick="risk()">🛡️ Відмовитися від сумнівної пропозиції</button>
+    </div>
+  </section>
+
+  <section id="market" class="screen">
+    <div class="card"><h2>💼 Ринок</h2>
+      <button onclick="scout()">🔎 Пошук клубу</button>
+      <button onclick="sponsor()">📢 Перевірити спонсорів</button>
+      <button onclick="boots()">👟 Нові бутси — €100</button>
+    </div>
+  </section>
+
+  <section id="profile" class="screen">
+    <div class="card"><h2>👤 Профіль</h2>
+      <div class="info-row"><span>Ім'я</span><b id="pn"></b></div>
+      <div class="info-row"><span>Позиція</span><b id="pos"></b></div>
+      <div class="info-row"><span>Регіон</span><b id="region"></b></div>
+      <div class="info-row"><span>Вік</span><b id="pa"></b></div>
+      <button onclick="edit()">✏️ Змінити ім'я / позицію</button>
+      <button class="danger" onclick="resetGame()">Почати нову кар'єру</button>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs">
+  <button class="on" onclick="tab('home',this)"><span class="ico">🏠</span>Головна</button>
+  <button onclick="tab('career',this)"><span class="ico">🏆</span>Кар'єра</button>
+  <button onclick="tab('life',this)"><span class="ico">🏡</span>Життя</button>
+  <button onclick="tab('market',this)"><span class="ico">💼</span>Ринок</button>
+  <button onclick="tab('profile',this)"><span class="ico">👤</span>Профіль</button>
+</nav>
+
+<div id="eventModal" class="modal" onclick="if(event.target===this)closeEvent()">
+  <div class="event-card">
+    <div class="event-badge">⚡ ВИПАДКОВА ПОДІЯ</div>
+    <div class="event-icon" id="eventIcon">🎲</div>
+    <h2 class="event-title" id="eventTitle"></h2>
+    <p class="event-text" id="eventText"></p>
+    <div class="choices" id="eventChoices"></div>
+    <button class="close-event" onclick="closeEvent()">Закрити</button>
+  </div>
+</div>
+
+<script>
+const CLUBS=[
+ {name:'FC Heeten',city:'Heeten',level:38,minOvr:38,salary:120,bonus:80,style:'стартовий клуб'},
+ {name:'Raalte Athletic',city:'Raalte',level:48,minOvr:45,salary:240,bonus:150,style:'молодий склад'},
+ {name:'Zwolle North',city:'Zwolle',level:58,minOvr:53,salary:420,bonus:300,style:'професійна академія'},
+ {name:'Deventer United',city:'Deventer',level:63,minOvr:59,salary:620,bonus:450,style:'амбітний клуб'},
+ {name:'Utrecht Stars',city:'Utrecht',level:70,minOvr:66,salary:950,bonus:700,style:'верхній рівень'},
+ {name:'Amsterdam City',city:'Amsterdam',level:78,minOvr:73,salary:1450,bonus:1100,style:'великий клуб'},
+ {name:'Rotterdam Elite',city:'Rotterdam',level:84,minOvr:80,salary:2200,bonus:1800,style:'топ-рівень'},
+ {name:'Eindhoven Pro',city:'Eindhoven',level:90,minOvr:87,salary:3400,bonus:3000,style:'елітний клуб'}
+];
+
+let s=JSON.parse(localStorage.getItem('fl')||'null')||{
+ name:'Новий футболіст',pos:'Півзахисник',region:'Україна',age:16,
+ money:0,energy:9999,fit:70,skill:35,ovr:42,fans:0,matches:0,goals:0,rep:0,
+ salary:0,comfort:20,rel:0,house:'Кімната',clubIndex:0,offers:[],lastEvent:0
+};
+
+if(typeof s.clubIndex!=='number'){
+  s.clubIndex=Math.min(Math.max(Number(s.lev)||0,0),CLUBS.length-1);
+}
+if(!Array.isArray(s.offers))s.offers=[];
+delete s.lev;
+
+const $=x=>document.getElementById(x);
+function club(){return CLUBS[s.clubIndex]||CLUBS[0]}
+function save(){localStorage.setItem('fl',JSON.stringify(s))}
+function log(x){
+ let a=JSON.parse(localStorage.getItem('flog')||'[]');
+ a.unshift(x);localStorage.setItem('flog',JSON.stringify(a.slice(0,40)));render()
+}
+function recalc(){
+ s.ovr=Math.min(99,Math.round(30+s.skill+s.fit/8));
+}
+function train(){
+ s.skill+=2;s.fit=Math.max(0,s.fit-1);recalc();
+ log('🏋️ Тренування: майстерність +2.');
+ save();afterAction()
+}
+function rest(){
+ s.fit=Math.min(100,s.fit+3);s.energy=9999;
+ log('😴 Відпочинок: форма +3. Енергія без обмежень.');
+ save();afterAction()
+}
+function play(){
+ s.matches++;
+ const win=Math.random()<Math.min(.92,.35+s.ovr/150);
+ if(win){s.money+=25;s.rep+=3;s.fans+=Math.max(1,Math.floor(s.ovr/15));log('🟢 Перемога! +€25.')}
+ else{s.money+=10;s.rep++;log('🟠 Поразка. +€10.')}
+ if(Math.random()<(.18+(s.pos==='Нападник'?.2:0))){
+   s.goals++;s.skill++;recalc();log('⚽ ГОЛ! Майстерність +1.')
+ }
+ maybeOffer();
+ save();render();afterAction()
+}
+
+/* ---------------- САМОСТІЙНІ ВИПАДКОВІ ПОДІЇ ---------------- */
+const EVENTS=[
+ {icon:'🤝',title:'Друг просить допомоги',text:'Твій друг має проблему перед важливим матчем. Твоє рішення може змінити ваші стосунки.',
+  choices:[
+   ['💚 Допомогти — €30 і стосунки +1',()=>{s.money+=30;s.rel++;log('🤝 Ти допоміг другу: +€30, стосунки +1.')}],
+   ['🚫 Відмовити',()=>log('🤝 Ти вирішив не втручатися.')],
+   ['⚽ Запропонувати тренування разом',()=>{s.skill++;s.rel++;log('⚽ Ви потренувалися разом: навичка +1, стосунки +1.')}]]},
+ {icon:'💼',title:'Агент кличе на зустріч',text:'Невідомий агент побачив твою статистику. Це може бути шансом, але гарантій немає.',
+  choices:[
+   ['🤝 Піти на зустріч',()=>{s.rep+=3;s.money+=40;log('💼 Зустріч з агентом: +€40, репутація +3.')}],
+   ['🙅 Відмовитися',()=>log('💼 Ти вирішив не ризикувати.')],
+   ['📋 Попросити деталі контракту',()=>{s.rep++;log('📋 Ти попросив умови письмово. Репутація +1.')}]]},
+ {icon:'🎰',title:'Сумнівна ставка',text:'Хтось пропонує тобі зробити ставку на матч, результат якого нібито відомий.',
+  choices:[
+   ['🎲 Ризикнути',()=>{if(Math.random()<.4){s.money+=150;log('🎰 Неймовірно! Ти виграв €150.')}else{s.money=Math.max(0,s.money-100);s.rep=Math.max(0,s.rep-2);log('🎰 Ти програв €100 і втратив репутацію.')}}],
+   ['🛡️ Не ризикувати',()=>{s.rep++;log('🛡️ Ти відмовився від ставки. Репутація +1.')}],
+   ['📢 Розповісти тренеру',()=>{s.rep+=3;s.fans+=2;log('📢 Ти повідомив тренеру. Репутація +3, фанати +2.')}]]},
+ {icon:'🏟️',title:'Скаут на трибунах',text:'Після матчу до тебе підходить скаут. Він пропонує приїхати на перегляд.',
+  choices:[
+   ['🚀 Погодитися',()=>{s.rep+=4;s.money+=80;log('🏟️ Ти погодився на перегляд: +€80, репутація +4.');maybeOffer(true)}],
+   ['⏳ Залишитися в клубі',()=>log('🏟️ Ти вирішив поки не змінювати команду.')],
+   ['📞 Попросити зв’язатися через агента',()=>{s.rep+=2;log('📞 Ти залишив контакт агенту. Репутація +2.');maybeOffer(true)}]]},
+ {icon:'❤️',title:'Запрошення на побачення',text:'Тобі написала людина, яка давно стежить за твоїми матчами.',
+  choices:[
+   ['❤️ Піти на побачення',()=>{s.rel+=2;s.fans+=2;log('❤️ Побачення пройшло добре: стосунки +2, фанати +2.')}],
+   ['⚽ Обрати футбол',()=>{s.skill++;log('⚽ Ти обрав тренування. Майстерність +1.')}],
+   ['🤝 Зустрітися після матчу',()=>{s.rel++;s.rep++;log('🤝 Ви домовилися зустрітися після матчу: стосунки +1.')}]]},
+ {icon:'💰',title:'Несподівана підробітка',text:'Тобі пропонують швидко заробити гроші після тренування.',
+  choices:[
+   ['💰 Взяти роботу',()=>{s.money+=50;s.fit=Math.max(0,s.fit-2);log('💰 Підробіток: +€50, форма -2.')}],
+   ['😴 Відпочити',()=>{s.fit=Math.min(100,s.fit+2);log('😴 Ти обрав відпочинок: форма +2.')}],
+   ['📣 Попросити футбольну рекламу',()=>{s.fans+=4;s.money+=20;log('📣 Ти взяв маленьку рекламну інтеграцію: +4 фанати, +€20.')}]]},
+ {icon:'🩹',title:'Невелика травма',text:'На тренуванні ти невдало приземлився. Тренер радить обережність.',
+  choices:[
+   ['🧊 Відпочити',()=>{s.fit=Math.max(0,s.fit-5);log('🩹 Ти відпочив і уникнув серйозної травми.')}],
+   ['🔥 Грати через біль',()=>{s.ovr=Math.max(1,s.ovr-1);s.rep+=2;log('🔥 Ти зіграв через біль: OVR -1, репутація +2.')}],
+   ['👨‍⚕️ Піти до лікаря',()=>{s.fit=Math.min(100,s.fit+3);s.money=Math.max(0,s.money-20);log('👨‍⚕️ Медогляд: форма +3, витрати €20.')}]]},
+ {icon:'📱',title:'Твоє відео стало вірусним',text:'Нарізка твоїх моментів набрала тисячі переглядів. Тепер треба вирішити, що робити з популярністю.',
+  choices:[
+   ['📈 Використати популярність',()=>{s.fans+=15;s.rep+=3;log('📱 Відео стало вірусним: +15 фанатів, +3 репутації.')}],
+   ['🙈 Не звертати уваги',()=>{s.fans+=3;log('📱 Ти не став гнатися за популярністю. +3 фанати.')}],
+   ['💼 Знайти менеджера',()=>{s.fans+=8;s.rep+=5;log('💼 Ти почав шукати менеджера: +8 фанатів, +5 репутації.');maybeOffer(true)}]]}
+];
+let activeEvent=null;
+
+function openEvent(manual=false){
+ if(activeEvent)return;
+ activeEvent=EVENTS[Math.floor(Math.random()*EVENTS.length)];
+ s.lastEvent=Date.now();
+ $('eventIcon').textContent=activeEvent.icon;
+ $('eventTitle').textContent=activeEvent.title;
+ $('eventText').textContent=activeEvent.text;
+ $('eventChoices').innerHTML='';
+ activeEvent.choices.forEach(c=>{
+   const b=document.createElement('button');
+   b.textContent=c[0];
+   b.onclick=()=>{c[1]();closeEvent();save();render();scheduleEvent()};
+   $('eventChoices').appendChild(b)
+ });
+ $('eventModal').classList.add('show');
+ $('eventStatus').textContent='ПОДІЯ ВИНИКЛА!';
+ if(manual)log('🎲 Ти сам відкрив випадкову подію.')
+}
+function closeEvent(){activeEvent=null;$('eventModal').classList.remove('show')}
+function scheduleEvent(){
+ const delay=35000+Math.random()*70000;
+ clearTimeout(window.eventTimer);
+ window.eventTimer=setTimeout(()=>{
+   if(!activeEvent){openEvent(false)}
+   else scheduleEvent()
+ },delay)
+}
+function afterAction(){
+ if(Math.random()<.22 && !activeEvent){setTimeout(()=>openEvent(false),900)}
+ else scheduleEvent()
+}
+
+/* ---------------- КЛУБИ ТА КАР'ЄРА ---------------- */
+function eligibleClubs(){
+ return CLUBS.filter((c,i)=>i!==s.clubIndex && s.ovr>=c.minOvr-3 && s.rep>=Math.max(0,Math.floor((c.minOvr-35)/3)));
+}
+function maybeOffer(force=false){
+ const eligible=eligibleClubs();
+ if(!eligible.length)return;
+ const chance=force?.95:.12;
+ if(Math.random()>chance)return;
+ const pool=eligible.filter(c=>!s.offers.some(o=>o.name===c.name));
+ if(!pool.length)return;
+ const c=pool[Math.floor(Math.random()*pool.length)];
+ s.offers.push({name:c.name,expires:Date.now()+1000*60*60*24*3});
+ s.offers=s.offers.slice(-3);
+ log('📨 Пропозиція від '+c.name+'! Перевір вкладку «Кар’єра».');
+}
+function offerClub(name){
+ const idx=CLUBS.findIndex(c=>c.name===name);
+ if(idx<0)return;
+ const c=CLUBS[idx];
+ if(s.ovr<c.minOvr-3){log('❌ '+c.name+' поки зарано для твого рівня.');return}
+ s.clubIndex=idx;
+ s.salary=c.salary;
+ s.money+=c.bonus;
+ s.rep+=4;
+ s.offers=s.offers.filter(o=>o.name!==name);
+ log('🚀 Ти підписав контракт з '+c.name+'! Бонус €'+c.bonus+', зарплата €'+c.salary+'/міс.');
+ save();render()
+}
+function stayClub(){
+ s.rep+=1;
+ s.offers=[];
+ log('🏠 Ти вирішив залишитися в '+club().name+'. Репутація +1.');
+ save();render()
+}
+function renderOffers(){
+ const box=$('offers'),empty=$('noOffers');
+ if(!box)return;
+ box.innerHTML='';
+ const valid=s.offers.filter(o=>o.expires>Date.now());
+ s.offers=valid;
+ if(!valid.length){empty.style.display='block';return}
+ empty.style.display='none';
+ valid.forEach(o=>{
+   const c=CLUBS.find(x=>x.name===o.name);
+   if(!c)return;
+   const d=document.createElement('div');
+   d.className='offer-card';
+   d.style.cssText='border:1px solid #29415f;border-radius:16px;padding:13px;margin:8px 0;background:linear-gradient(135deg,#14263d,#0c1625)';
+   d.innerHTML='<div style="display:flex;justify-content:space-between;gap:8px"><b style="font-size:16px">'+c.name+'</b><span style="color:#48e39b;font-size:12px">'+c.style+'</span></div>'+
+     '<div style="color:#9aabc0;font-size:12px;margin:5px 0">📍 '+c.city+' · Потрібно приблизно '+c.minOvr+' OVR</div>'+
+     '<div style="display:flex;justify-content:space-between;font-size:13px;margin:8px 0"><span>💰 €'+c.salary+'/міс.</span><span>🎁 €'+c.bonus+'</span></div>';
+   const yes=document.createElement('button');yes.className='primary';yes.textContent='🚀 Прийняти контракт';yes.onclick=()=>offerClub(c.name);
+   const no=document.createElement('button');no.textContent='❌ Відмовитися';no.onclick=()=>{s.offers=s.offers.filter(x=>x.name!==c.name);log('📨 Ти відмовився від пропозиції '+c.name+'.');save();render()};
+   d.appendChild(yes);d.appendChild(no);box.appendChild(d)
+ });
+}
+function risk(){s.rep+=2;log('🛡️ Ти відмовився від сумнівної пропозиції. Репутація +2.');save()}
+function buyClothes(){if(s.money<80)return log('💸 Не вистачає €80.');s.money-=80;s.comfort+=4;log('👕 Новий одяг. Комфорт +4.');save()}
+function buyCar(){if(s.house==='Авто')return log('🚗 Авто вже є.');if(s.money<2500)return log('💸 Потрібно €2500.');s.money-=2500;s.house='Авто';s.comfort+=15;log('🚗 Перша машина! Комфорт +15.');save()}
+function boots(){if(s.money<100)return log('💸 Не вистачає €100.');s.money-=100;s.ovr=Math.min(99,s.ovr+1);s.skill++;log('👟 Нові бутси: OVR +1.');save()}
+function scout(){if(s.ovr<45)return log('🔎 Скаут: ще зарано. Потрібно 45 OVR.');s.money+=80+s.clubIndex*80;s.rep+=3;maybeOffer(true);log('🔎 Тебе запросили на перегляд.');save()}
+function sponsor(){if(s.fans<15)return log('📢 Спонсори ще не готові. Потрібно 15 фанатів.');s.money+=120;s.fans+=5;log('📢 Спонсорський бонус +€120.');save()}
+function edit(){let n=prompt("Ім'я:",s.name);if(n)s.name=n;let p=prompt('Позиція (Нападник/Півзахисник/Захисник/Воротар):',s.pos);if(p)s.pos=p;save();render()}
+function tab(id,b){
+ document.querySelectorAll('.screen').forEach(x=>x.classList.remove('on'));$(id).classList.add('on');
+ document.querySelectorAll('.tabs button').forEach(x=>x.classList.remove('on'));b.classList.add('on');render()
+}
+function resetGame(){if(confirm("Почати нову кар'єру?")){localStorage.removeItem('fl');localStorage.removeItem('flog');location.reload()}}
+function render(){
+ const a=JSON.parse(localStorage.getItem('flog')||'[]');
+ const c=club();
+ $('age').textContent=s.age+' років';$('name').textContent=s.name;$('club').textContent=c.name;
+ $('ovr').textContent=s.ovr;$('money').textContent='€'+s.money;$('energy').textContent='∞';$('fans').textContent=s.fans;
+ $('cclub').textContent=c.name;$('matches').textContent=s.matches;$('goals').textContent=s.goals;$('rep').textContent=s.rep;
+ $('salary').textContent='€'+s.salary+'/міс.';$('skill').textContent=s.skill;$('fit').textContent=s.fit;
+ $('house').textContent=s.house;$('comfort').textContent=s.comfort;$('rel').textContent=s.rel;
+ $('pn').textContent=s.name;$('pos').textContent=s.pos;$('region').textContent=s.region;$('pa').textContent=s.age;
+ $('log').innerHTML=(a.length?a:['👋 Почни кар’єру. Тренуйся, грай і чекай пропозицій клубів.']).map(x=>'<div>'+x+'</div>').join('');
+ renderOffers();save()
+}
+render();
+scheduleEvent();
+</script>
+</body>
+</html>
